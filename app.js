@@ -6,8 +6,13 @@ async function main() {
     model: "llama-3.3-70b-versatile",
     messages: [
       {
+        role: "system",
+        content: `You are Jarvis,a smart review grader. Your task is to analyse given review and return the sentiment. Classify the review as positive, neutral or negative. Output must be a single word.`,
+      },
+      {
         role: "user",
-        content: "hii",
+        content: `Review : These headphones arrived quickly and look grat, but the left earcup stopped working after a week.
+              Sentiment:`,
       },
     ],
   });
