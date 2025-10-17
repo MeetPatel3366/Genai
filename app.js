@@ -7,8 +7,12 @@ async function main() {
     model: "llama-3.3-70b-versatile",
     messages: [
       {
+        role: "system",
+        content: "You are Jarvis, a smart personal assistant.Be always polite.",
+      },
+      {
         role: "user",
-        content: "Hii",
+        content: "Who are you?",
       },
     ],
   });
