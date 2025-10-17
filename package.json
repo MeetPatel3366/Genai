@@ -1,0 +1,25 @@
+{
+  "name": "genai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev":"node --env-file=.env app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MeetPatel3366/Genai.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/MeetPatel3366/Genai/issues"
+  },
+  "homepage": "https://github.com/MeetPatel3366/Genai#readme",
+  "dependencies": {
+    "groq-sdk": "^0.33.0"
+  }
+}
