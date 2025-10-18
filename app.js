@@ -8,11 +8,15 @@ async function main() {
     messages: [
       {
         role: "system",
-        content: "You are Jarvis, a smart personal assistant.Be always polite.",
+        content:
+          "You are Jarvis, a smart reviwew grader. Your task is to analyze given review and return the sentiment. Classify the review as positive, neutral or negative. Output must be a single word.",
       },
       {
         role: "user",
-        content: "Who are you?",
+        content: `
+          Review: These headphones arrived quickly and look great, but the left earcup stopped working after a week.
+          Sentiment:
+        `,
       },
     ],
   });
