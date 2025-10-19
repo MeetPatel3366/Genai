@@ -7,9 +7,10 @@ async function main() {
     temperature: 1,
     // top_p:0.2,
     // stop: "ga", //negative
-    max_completion_tokens: 1000,
+    // max_completion_tokens: 1000,
     // frequency_penalty:2,
-    presence_penalty: 2,
+    // presence_penalty: 2,
+    response_format: { type: "json_object" },
     model: "llama-3.3-70b-versatile",
     messages: [
       {
