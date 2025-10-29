@@ -4,30 +4,66 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 async function main() {
   const completion = await groq.chat.completions.create({
-    temperature: 1,
-    // top_p:0.2,
-    // stop: "ga", //negative
-    // max_completion_tokens: 1000,
-    // frequency_penalty:2,
-    // presence_penalty: 2,
-    response_format: { type: "json_object" },
     model: "llama-3.3-70b-versatile",
+    temperature: 0,
     messages: [
       {
         role: "system",
-        content: `You are Jarvis, a smart reviwew grader. Your task is to analyze given review and return the sentiment. Classify the review as positive, neutral or negative. You must return the result in valid JSON Structure.
-         example: {"sentiment": "Negative"}`,
+        content: `You are a helpful assistant that can answer questions.
+You have access to a tool called "webSerach" which lets you search the internet for up-to-date information.`,
       },
       {
         role: "user",
-        content: `
-          Review: These headphones arrived quickly and look great, but the left earcup stopped working after a week.
-          Sentiment:
-        `,
+        content: `When was iphone 17 launched?`,
       },
     ],
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "webSerach",
+          description:
+            "Search the latest information and realtime data on the internet.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "The serach query to perform serach on.",
+              },
+            },
+            required: ["query"],
+          },
+        },
+      },
+    ],
+    tool_choice: "auto",
   });
-  console.log(completion);
-  console.log(JSON.parse(completion.choices[0]?.message?.content) || "");
+
+  const toolCalls = completion.choices[0].message.tool_calls;
+
+  if (!toolCalls) {
+    console.log(`Assistant: ${completion.choices[0].message.content}`);
+    return;
+  }
+
+  for (const tool of toolCalls) {
+    console.log("tool: ", tool);
+    const functionName = tool.function.name;
+    const functionArguments = tool.function.arguments;
+
+    if (functionName == "webSerach") {
+      const toolResult = await webSerach(JSON.parse(functionArguments));
+      console.log(toolResult);
+    }
+  }
+
+  // console.log(JSON.stringify(completion.choices[0].message,null,2));
 }
 main();
+
+async function webSerach({ query }) {
+  //Here we will do tavily api call
+  console.log("Calling web search : ", query);
+  return "Iphone was launched on September 12, 2023.";
+}
