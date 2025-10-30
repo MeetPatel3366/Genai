@@ -1,3 +1,4 @@
+import readline from "node:readline/promises";
 import Groq from "groq-sdk";
 import { tavily } from "@tavily/core";
 
@@ -5,74 +6,98 @@ const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 async function main() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
   const messages = [
     {
       role: "system",
-      content: `You are a helpful assistant that can answer questions.
-You have access to a tool called "webSearch" which lets you search the internet for up-to-date information.`,
+      content: `content: You are a helpful assistant that can answer questions.
+      You have access to a tool called "webSearch" which lets you search the internet for up-to-date information.
+      However, if the question can be answered using the information already provided (like the current date/time), 
+      do NOT use the webSearch tool.
+      current date and time: ${new Date().toUTCString()}
+      `,
     },
-    {
-      role: "user",
-      content: `When was iphone 17 launched?`,
-    },
+    // {
+    //   role: "user",
+    //   content: `When was iphone 17 launched?`,
+    // },
   ];
 
   while (true) {
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      temperature: 0,
-      messages: messages,
-      tools: [
-        {
-          type: "function",
-          function: {
-            name: "webSearch",
-            description:
-              "Search the latest information and realtime data on the internet.",
-            parameters: {
-              type: "object",
-              properties: {
-                query: {
-                  type: "string",
-                  description: "The serach query to perform serach on.",
-                },
-              },
-              required: ["query"],
-            },
-          },
-        },
-      ],
-      tool_choice: "auto",
-    });
+    const question = await rl.question("You: ");
 
-    // console.log("3----> ", completion.choices[0].message);
-
-    messages.push(completion.choices[0].message);
-    const toolCalls = completion.choices[0].message.tool_calls;
-
-    if (!toolCalls) {
-      console.log(`Assistant: ${completion.choices[0].message.content}`);
+    //bye
+    if (question == "bye") {
       break;
     }
 
-    for (const tool of toolCalls) {
-      // console.log("tool: ", tool);
-      const functionName = tool.function.name;
-      const functionArguments = tool.function.arguments;
+    messages.push({
+      role: "user",
+      content: question,
+    });
 
-      if (functionName == "webSearch") {
-        const toolResult = await webSearch(JSON.parse(functionArguments));
-        // console.log(toolResult);
+    while (true) {
+      const completion = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        temperature: 0,
+        messages: messages,
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "webSearch",
+              description:
+                "Search the latest information and realtime data on the internet.",
+              parameters: {
+                type: "object",
+                properties: {
+                  query: {
+                    type: "string",
+                    description: "The serach query to perform serach on.",
+                  },
+                },
+                required: ["query"],
+              },
+            },
+          },
+        ],
+        tool_choice: "auto",
+      });
 
-        messages.push({
-          tool_call_id: tool.id,
-          role: "tool",
-          name: functionName,
-          content: toolResult,
-        });
+      // console.log("3----> ", completion.choices[0].message);
+
+      messages.push(completion.choices[0].message);
+      const toolCalls = completion.choices[0].message.tool_calls;
+
+      if (!toolCalls) {
+        console.log(`Assistant: ${completion.choices[0].message.content}`);
+        break;
+      }
+
+      for (const tool of toolCalls) {
+        // console.log("tool: ", tool);
+        const functionName = tool.function.name;
+        const functionArguments = tool.function.arguments;
+
+        if (functionName == "webSearch") {
+          const toolResult = await webSearch(JSON.parse(functionArguments));
+          // console.log(toolResult);
+
+          messages.push({
+            tool_call_id: tool.id,
+            role: "tool",
+            name: functionName,
+            content: toolResult,
+          });
+        }
       }
     }
   }
+  rl.close();
 }
 main();
 
