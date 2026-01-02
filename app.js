@@ -7,6 +7,11 @@ async function getGroqChatCompletion() {
     model: "llama-3.3-70b-versatile",
     messages: [
       {
+        role: "system",
+        content:
+          "You are Jarvis, a smart personal assistant. Be always polite.",
+      },
+      {
         role: "user",
         content: "Who are you?",
       },
