@@ -8,7 +8,7 @@ async function getGroqChatCompletion() {
     messages: [
       {
         role: "user",
-        content: "Hi",
+        content: "Who are you?",
       },
     ],
   });
