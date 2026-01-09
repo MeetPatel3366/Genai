@@ -23,13 +23,34 @@ async function getGroqChatCompletion() {
     messages: [
       {
         role: "system",
-        content: `You are Jarvis, a smart review grader. Your task is to analyze given review and return the sentiment. Classify the review as positive, neutral or negative. You must return result valid JSON Structure.
-          example : {"sentiment":"Negative"}`,
+        content: `You are an interview grader assistant. Your task is to generate candidate evaluation score. Output must be following JSON structure:
+        { 
+          "confidence": number (1-10 scale),
+          "accuracy": number (1-10 scale),
+          "pass": boolean (true or false)
+        }
+        The response must:
+          1. Include All fields shown above
+          2. Use only the exact field names shown
+          3. Follow the exact data types specified
+          4. Contain only the JSON object and nothing else  
+        `,
       },
       {
         role: "user",
-        content: `Review: These headphones arrived quickly and look great, but the left earcup stopped working after just a week of use.
-        Sentiment:`,
+        content: `
+          Q: What does === do in JavaScript?
+          A: It checks strict equality without type conversion.
+
+          Q: How do you declare a variable in JavaScript?
+          A: Use let, const, or var followed by the variable name.
+
+          Q: What is a JavaScript array?
+          A: It's a list-like object used to store multiple values in a single variable.
+
+          Q: How do you create a function in JavaScript?
+          A: Use the function keyword followed by a name and parentheses.
+        `,
       },
     ],
   });
