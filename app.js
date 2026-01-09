@@ -19,6 +19,7 @@ async function getGroqChatCompletion() {
     frequency_penalty: 1.0,
     presence_penalty: 1.0,
     model: "llama-3.3-70b-versatile",
+    response_format: { type: "json_object" },
     messages: [
       {
         role: "system",
