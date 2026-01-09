@@ -14,7 +14,7 @@ async function getGroqChatCompletion() {
         11. item 11
      */
     // stop:"11.",
-    stop: "ga", //Negative
+    // stop: "ga", //Negative
     max_completion_tokens: 100,
     frequency_penalty: 1.0,
     presence_penalty: 1.0,
@@ -22,8 +22,8 @@ async function getGroqChatCompletion() {
     messages: [
       {
         role: "system",
-        content:
-          "You are Jarvis, a smart review grader. Your task is to analyze given review and return the sentiment. Classify the review as positive, neutral or negative. Output must be a single word.",
+        content: `You are Jarvis, a smart review grader. Your task is to analyze given review and return the sentiment. Classify the review as positive, neutral or negative. You must return result valid JSON Structure.
+          example : {"sentiment":"Negative"}`,
       },
       {
         role: "user",
@@ -38,6 +38,7 @@ async function main() {
   const chatCompletion = await getGroqChatCompletion();
 
   console.log(chatCompletion?.choices[0]?.message.content);
+  console.log(JSON.parse(chatCompletion?.choices[0]?.message.content));
 }
 
 main();
