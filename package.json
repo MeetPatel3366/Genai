@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev":"node --env-file=.env app.js"
+    "dev": "node --env-file=.env app.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/MeetPatel3366/Genai#readme",
   "dependencies": {
+    "@tavily/core": "^0.6.4",
     "groq-sdk": "^0.37.0"
   }
 }
