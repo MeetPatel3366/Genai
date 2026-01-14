@@ -1,3 +1,4 @@
+import readline from "node:readline/promises";
 import Groq from "groq-sdk";
 import { tavily } from "@tavily/core";
 
@@ -9,11 +10,8 @@ const messages = [
     role: "system",
     content: `You are s samrt personal assistant who answers the asked questions.
         You have access to following tools:
-        1. searchWeb({query}: {query:string}) //Search the latest information and realtime data on the internet`,
-  },
-  {
-    role: "user",
-    content: `What is the current weather in Mumbai?`,
+        1. searchWeb({query}: {query:string}) //Search the latest information and realtime data on the internet
+        Current Date And Time: ${new Date().toUTCString()}`,
   },
 ];
 
@@ -53,39 +51,60 @@ async function getGroqChatCompletion() {
 }
 
 async function main() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
   while (true) {
-    const chatCompletion = await getGroqChatCompletion();
+    //for user input
+    const question = await rl.question("You: ");
 
-    messages.push(chatCompletion?.choices[0]?.message); //assistant message
-
-    // console.log(chatCompletion?.choices[0]?.message);
-    // console.log(JSON.stringify(chatCompletion?.choices[0]?.message,null,2));
-
-    const toolCalls = chatCompletion.choices[0].message.tool_calls;
-
-    if (!toolCalls) {
-      console.log(`Assistant: ${chatCompletion?.choices[0]?.message.content}`);
+    //bye
+    if (question == "bye") {
       break;
     }
+    messages.push({
+      role: "user",
+      content: question,
+    });
+    while (true) {
+      //for llm loop for tools calling
+      const chatCompletion = await getGroqChatCompletion();
 
-    for (const tool of toolCalls) {
-      console.log("tool: ", tool);
-      const functionName = tool.function.name;
-      const functionArguments = tool.function.arguments;
+      messages.push(chatCompletion?.choices[0]?.message); //assistant message
 
-      if (functionName == "webSearch") {
-        const toolResult = await webSearch(JSON.parse(functionArguments));
-        console.log("Tool result: ", toolResult);
+      // console.log(chatCompletion?.choices[0]?.message);
+      // console.log(JSON.stringify(chatCompletion?.choices[0]?.message,null,2));
 
-        messages.push({
-          tool_call_id: tool.id,
-          role: "tool", //tool role use for sent result of tool,
-          name: functionName,
-          content: toolResult,
-        }); //tool call result push in messages because next time when llm call so tool result exists in messages history
+      const toolCalls = chatCompletion.choices[0].message.tool_calls;
+
+      if (!toolCalls) {
+        console.log(
+          `Assistant: ${chatCompletion?.choices[0]?.message.content}`
+        );
+        break;
+      }
+
+      for (const tool of toolCalls) {
+        console.log("tool: ", tool);
+        const functionName = tool.function.name;
+        const functionArguments = tool.function.arguments;
+
+        if (functionName == "webSearch") {
+          const toolResult = await webSearch(JSON.parse(functionArguments));
+          console.log("Tool result: ", toolResult);
+
+          messages.push({
+            tool_call_id: tool.id,
+            role: "tool", //tool role use for sent result of tool,
+            name: functionName,
+            content: toolResult,
+          }); //tool call result push in messages because next time when llm call so tool result exists in messages history
+        }
       }
     }
   }
+  rl.close();
 }
 
 main();
